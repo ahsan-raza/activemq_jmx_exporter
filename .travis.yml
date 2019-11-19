@@ -1,0 +1,63 @@
+sudo: required
+
+services:
+  - docker
+
+env:
+  global:
+    - DOCKER_COMPOSE_VERSION=1.8.0
+  matrix:
+      - AMQ_VERSION=5.12.1
+      - AMQ_VERSION=5.12.2
+      - AMQ_VERSION=5.13.0
+      - AMQ_VERSION=5.13.1
+      - AMQ_VERSION=5.13.2
+      - AMQ_VERSION=5.13.3
+      - AMQ_VERSION=5.13.4
+      - AMQ_VERSION=5.14.0
+      - AMQ_VERSION=5.14.0-alpine
+      - AMQ_VERSION=5.14.1
+      - AMQ_VERSION=5.14.1-alpine
+      - AMQ_VERSION=5.14.2
+      - AMQ_VERSION=5.14.2-alpine
+      - AMQ_VERSION=5.14.3
+      - AMQ_VERSION=5.14.3-alpine
+      - AMQ_VERSION=5.14.4
+      - AMQ_VERSION=5.14.4-alpine
+      - AMQ_VERSION=5.14.5
+      - AMQ_VERSION=5.14.5-alpine
+      - AMQ_VERSION=5.15.2
+      - AMQ_VERSION=5.15.2-alpine
+      - AMQ_VERSION=5.15.3
+      - AMQ_VERSION=5.15.3-alpine
+      - AMQ_VERSION=5.15.4
+      - AMQ_VERSION=5.15.4-alpine
+      - AMQ_VERSION=5.15.5
+      - AMQ_VERSION=5.15.5-alpine
+      - AMQ_VERSION=5.15.6
+      - AMQ_VERSION=5.15.6-alpine
+      - AMQ_VERSION=5.15.9
+      - AMQ_VERSION=5.15.9-alpine
+
+before_install:
+  # upgrade docker-compose
+  - sudo rm -rf /usr/local/bin/docker-compose
+  - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
+  - chmod +x docker-compose
+  - sudo mv docker-compose /usr/local/bin
+  - docker-compose version
+
+script:
+  - docker-compose build
+  - docker-compose up -d
+  - docker-compose ps
+  - docker-compose ps | grep Up
+  - docker-compose ps | grep "1883/tcp"
+  - docker-compose ps | grep "5672/tcp"
+  - docker-compose ps | grep "61613/tcp"
+  - docker-compose ps | grep "61614/tcp"
+  - docker-compose ps | grep "61616/tcp"
+  - docker-compose ps | grep "8161->8161"
+  # wait until ActiveMQ is available
+  - wget --retry-connrefused --waitretry=5 --read-timeout=20 --timeout=15 -t 10 -O /dev/null http://admin:admin@localhost:8161/admin/
+  # do additional tests
