@@ -28,16 +28,12 @@ RUN tar xzf $ACTIVEMQ-bin.tar.gz -C  /opt && \
     rm -rf /var/cache/apk/*
 
 RUN apk add --no-cache tzdata unzip
-COPY ./activemq.xml /opt/${ACTIVEMQ_HOME}/conf/
-COPY ./jetty.xml /opt/${ACTIVEMQ_HOME}/conf/
-COPY activemq_ssl_certificates/. /opt/${ACTIVEMQ_HOME}/conf/
-USER 0
-RUN echo "user:x:activemq:0::/opt/apache-activemq-5.15.5:" >> /etc/passwd \
-    && echo "user:!:$(($(date +%s) / 60 / 60 / 24)):0:99999:7:::" >> /etc/shadow \
-    && echo "user:x:activemq:" >> /etc/group \
-    && chmod -R 775 /opt/apache-activemq-5.15.5 \
-    && chown -R user:root /opt/apache-activemq-5.15.5 \
-    && chown -h activemq:activemq /opt/activemq
+COPY ./activemq.xml /opt/apache-activemq-5.15.5/conf/
+COPY ./jetty.xml /opt/apache-activemq-5.15.5/conf/
+COPY activemq_ssl_certificates/. /opt/apache-activemq-5.15.5/conf/
+
+HEALTHCHECK --interval=1m30s --timeout=3s --retries=10 \
+      CMD wget http://localhost:8161 || exit 1
 
 USER activemq
 
