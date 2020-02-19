@@ -1,4 +1,4 @@
-FROM gitlab.expertflow.com:9242/general/openjdk:8-jre-alpine-3.10.3
+FROM gitlab.expertflow.com:9242/general/openjdk:8-jre-alpine-3.11
 
 ENV ACTIVEMQ_VERSION 5.15.5
 ENV ACTIVEMQ apache-activemq-$ACTIVEMQ_VERSION
@@ -33,7 +33,7 @@ COPY ./jetty.xml /opt/apache-activemq-5.15.5/conf/
 COPY activemq_ssl_certificates/. /opt/apache-activemq-5.15.5/conf/
 
 HEALTHCHECK --interval=1m30s --timeout=3s --retries=10 \
-      CMD wget http://localhost:8161 || exit 1
+      CMD wget -q http://localhost:8161 || exit 1
 
 USER activemq
 
