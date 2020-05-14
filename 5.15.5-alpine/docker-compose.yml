@@ -1,11 +1,12 @@
 version: "2.1"
 services:
   activemq:
-    image: gitlab.expertflow.com:9242/general/docker-activemq:5.15.5-alpine-3.10.3
+    image: gitlab.expertflow.com:9242/general/docker-activemq:5.15.5-alpine-3.11
     ports:
       - 8161:8161
       - 8162:8162
       - 61613-61617:61613-61617
     restart: always
-    #volumes:
+    volumes:
     #  - ${PWD}/activemq:/opt/activemq/data
+       - ${PWD}/activemq-cluster.xml:/opt/apache-activemq-5.15.5/conf/activemq.xml

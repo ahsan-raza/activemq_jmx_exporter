@@ -15,10 +15,8 @@
     limitations under the License.
 -->
 <!-- START SNIPPET: example -->
-<beans
-  xmlns="http://www.springframework.org/schema/beans"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+<beans xmlns="http://www.springframework.org/schema/beans" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
     <!-- Allows us to use system properties as variables in this configuration file -->
@@ -28,10 +26,8 @@
         </property>
     </bean>
 
-   <!-- Allows accessing the server log -->
-    <bean id="logQuery" class="io.fabric8.insight.log.log4j.Log4jLogQuery"
-          lazy-init="false" scope="singleton"
-          init-method="start" destroy-method="stop">
+    <!-- Allows accessing the server log -->
+    <bean id="logQuery" class="io.fabric8.insight.log.log4j.Log4jLogQuery" lazy-init="false" scope="singleton" init-method="start" destroy-method="stop">
     </bean>
 
     <!--
@@ -40,13 +36,28 @@
     <!-- Auto delete queue after 12 hours. CSN-922 -->
     <broker xmlns="http://activemq.apache.org/schema/core" brokerName="localhost" dataDirectory="${activemq.data}" schedulePeriodForDestinationPurge="300000">
 
+        <networkConnectors>
+            <networkConnector name="T:broker1->broker2" uri="static:(tcp://192.168.2.77:61616)" duplex="true" decreaseNetworkConsumerPriority="true" networkTTL="2" dynamicOnly="true">
+                <excludedDestinations>
+                    <queue physicalName=">" />
+                </excludedDestinations>
+
+            </networkConnector>
+
+            <networkConnector name="Q:broker1->broker2" uri="static:(tcp://192.168.2.77:61616)" duplex="true" decreaseNetworkConsumerPriority="true" networkTTL="2" dynamicOnly="true">
+                <excludedDestinations>
+                    <topic physicalName=">" />
+                </excludedDestinations>
+            </networkConnector>
+        </networkConnectors>
+
         <destinationPolicy>
             <policyMap>
-              <policyEntries>
-                <!--policyEntry topic=">" -->
-                <!--/policyEntry-->
-                <!-- Auto delete queue after 12 hours. CSN-922 -->
-                <policyEntry queue=">" gcInactiveDestinations="true" inactiveTimoutBeforeGC="3000"/>
+                <policyEntries>
+                    <!--policyEntry topic=">" -->
+                    <!--/policyEntry-->
+                    <!-- Auto delete queue after 12 hours. CSN-922 -->
+                    <policyEntry queue=">" gcInactiveDestinations="true" inactiveTimoutBeforeGC="3000"/>
                     <!-- The constantPendingMessageLimitStrategy is used to prevent
                          slow topic consumers to block producers and affect other consumers
                          by limiting the number of messages that are retained
@@ -55,11 +66,11 @@
                          http://activemq.apache.org/slow-consumer-handling.html
 
                     -->
-                  <!--pendingMessageLimitStrategy>
+                    <!--pendingMessageLimitStrategy>
                     <constantPendingMessageLimitStrategy limit="1000"/>
                   </pendingMessageLimitStrategy-->
-                <!--/policyEntry-->
-              </policyEntries>
+                    <!--/policyEntry-->
+                </policyEntries>
             </policyMap>
         </destinationPolicy>
 
@@ -75,11 +86,9 @@
         <managementContext>
             <managementContext createConnector="false"/>
         </managementContext>
-        <sslContext> 
-            <sslContext keyStore="file:${activemq.base}/conf/broker.ks"
-              keyStorePassword="password" trustStore="file:${activemq.base}/conf/broker.ts"
-              trustStorePassword="password"/> 
-        </sslContext> 
+        <sslContext>
+            <sslContext keyStore="file:${activemq.base}/conf/broker.ks" keyStorePassword="password" trustStore="file:${activemq.base}/conf/broker.ts" trustStorePassword="password"/>
+        </sslContext>
 
 
         <!--
@@ -94,12 +103,12 @@
         </persistenceAdapter>
 
 
-          <!--
+        <!--
             The systemUsage controls the maximum amount of space the broker will
             use before disabling caching and/or slowing down producers. For more information, see:
             http://activemq.apache.org/producer-flow-control.html
           -->
-          <systemUsage>
+        <systemUsage>
             <systemUsage>
                 <memoryUsage>
                     <memoryUsage percentOfJvmHeap="70" />
