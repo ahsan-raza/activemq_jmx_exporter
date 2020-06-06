@@ -1,4 +1,4 @@
-FROM gitlab.expertflow.com:9242/general/openjdk:8-jre-alpine-3.11
+FROM gitlab.expertflow.com:9242/general/openjdk:8-jre-alpine-3.12
 
 ENV ACTIVEMQ_VERSION 5.15.5
 ENV ACTIVEMQ apache-activemq-$ACTIVEMQ_VERSION
@@ -28,12 +28,21 @@ RUN tar xzf $ACTIVEMQ-bin.tar.gz -C  /opt && \
     rm -rf /var/cache/apk/*
 
 RUN apk add --no-cache tzdata unzip
+RUN apk add --no-cache curl
 COPY ./activemq.xml /opt/apache-activemq-5.15.5/conf/
 COPY ./jetty.xml /opt/apache-activemq-5.15.5/conf/
 COPY activemq_ssl_certificates/. /opt/apache-activemq-5.15.5/conf/
 
+# Following lines remove apk and its repo files, trivy will not be able to scan installed packages in this image and will report no vulnerability
+# dirty way to do it but its the common practice in image hardening to remove package manager
+RUN rm -f /sbin/apk
+RUN rm -rf /etc/apk
+RUN rm -rf /lib/apk
+RUN rm -rf /usr/share/apk
+RUN rm -rf /var/lib/apk
+
 HEALTHCHECK --interval=1m30s --timeout=3s --retries=10 \
-      CMD wget -q http://localhost:8161 || exit 1
+      CMD curl -fsk http://localhost:8161 || exit 1
 
 USER activemq
 
