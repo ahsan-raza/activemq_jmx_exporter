@@ -1,4 +1,4 @@
-FROM gitlab.expertflow.com:9242/general/openjdk:8-jre-alpine-3.12
+FROM gitlab.expertflow.com:9242/general/openjdk:8-jre-alpine-3.12-RBI-256
 
 ENV ACTIVEMQ_VERSION 5.16.0
 ENV ACTIVEMQ apache-activemq-$ACTIVEMQ_VERSION
