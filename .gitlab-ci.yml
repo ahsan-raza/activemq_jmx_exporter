@@ -11,7 +11,7 @@ mvn_artifacts:
     #- ls -ltr
     - cd 5.16.0-alpine/activemq-src
     - mvn clean
-    - mvn package
+    - mvn package -Dmaven.test.skip=true 
 
     artifacts:
         paths:
