@@ -15,7 +15,7 @@ mvn_artifacts:
 
     artifacts:
         paths:
-            - 5.16.0-alpine/activemq-src/target
+            - 5.16.0-alpine/activemq-src/activemq-all/target
     allow_failure: false
 
 
