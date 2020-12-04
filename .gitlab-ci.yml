@@ -17,7 +17,7 @@ mvn_artifacts:
         when: always
         name: apache-activemq-5.16.0-bin.tar.gz/
         paths:
-            - 5.16.0-alpine/activemq-src/assembly/src/release/* apache-activemq-5.16.0-bin.tar.gz/
+            - 5.16.0-alpine/activemq-src/assembly/src/release/
     allow_failure: false
 
 
