@@ -1,24 +1,24 @@
-stages:
-  - artifacts
-  - build
-mvn_artifacts:
-    stage: artifacts
-    #when: manual
-    image: maven:3-openjdk-8
-    script:
-#    - yum install maven -y
-    #- rm -rf target
-    #- ls -ltr
-    - cd 5.16.0-alpine/activemq-src
-    - mvn clean
-    - mvn package -Dmaven.test.skip=true 
-
-    artifacts:
-        when: always
-        name: apache-activemq-5.16.0-bin.tar.gz/
-        paths:
-            - 5.16.0-alpine/activemq-src/assembly/src/release/
-    allow_failure: false
+#stages:
+#  - artifacts
+#  - build
+#mvn_artifacts:
+#    stage: artifacts
+#    #when: manual
+#    image: maven:3-openjdk-8
+#    script:
+##    - yum install maven -y
+#    #- rm -rf target
+#    #- ls -ltr
+#    - cd 5.16.0-alpine/activemq-src
+#    - mvn clean
+#    - mvn package -Dmaven.test.skip=true 
+#
+#    artifacts:
+#        when: always
+#        name: apache-activemq-5.16.0-bin.tar.gz/
+#        paths:
+#            - 5.16.0-alpine/activemq-src/assembly/src/release/
+#    allow_failure: false
 
 
 docker-build-master:
