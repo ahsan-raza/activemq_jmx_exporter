@@ -26,7 +26,8 @@ RUN tar xzf $ACTIVEMQ-bin.tar.gz -C  /opt && \
     chown -h activemq:activemq $ACTIVEMQ_HOME && \
     apk del build-dependencies && \
     rm -rf /var/cache/apk/*
-
+RUN apk update
+RUN apk upgrade
 RUN apk add --no-cache tzdata unzip
 RUN apk add --no-cache curl
 COPY ./activemq.xml /opt/apache-activemq-5.16.0/conf/
