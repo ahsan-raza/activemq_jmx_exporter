@@ -14,8 +14,10 @@ mvn_artifacts:
     - mvn package -Dmaven.test.skip=true 
 
     artifacts:
+        when: always
         paths:
-            - 5.16.0-alpine/activemq-src/activemq-all/target
+            - name: apache-activemq-5.16.0-bin.tar.gz/
+            - 5.16.0-alpine/activemq-src/assembly/src/release/* apache-activemq-5.16.0-bin.tar.gz/
     allow_failure: false
 
 
