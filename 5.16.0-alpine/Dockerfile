@@ -1,4 +1,4 @@
-FROM gitlab.expertflow.com:9242/general/adoptopenjdk/openjdk8-openj9:alpine-slim
+FROM adoptopenjdk/openjdk8-openj9:alpine-slim
 
 ENV ACTIVEMQ_VERSION 5.16.0
 ENV ACTIVEMQ apache-activemq-$ACTIVEMQ_VERSION
