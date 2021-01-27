@@ -1,4 +1,4 @@
-FROM gitlab.expertflow.com:9242/general/openjdk:8-jre-alpine-3.12-RBI-256
+FROM gitlab.expertflow.com:9242/general/adoptopenjdk/openjdk8-openj9:alpine-slim
 
 ENV ACTIVEMQ_VERSION 5.16.0
 ENV ACTIVEMQ apache-activemq-$ACTIVEMQ_VERSION
@@ -6,6 +6,22 @@ ENV ACTIVEMQ_TCP=61616 ACTIVEMQ_AMQP=5672 ACTIVEMQ_STOMP=61613 ACTIVEMQ_MQTT=188
 ENV SHA512_VAL=999928176e57b0805e8a53834e7f4eb648baf271a0c60de31ebd95fa63f2b089aa41c2ef7353790835e2e8cc39c4b778f535b38e6dc0c67a79c3c1da335c4a0a
 
 ENV ACTIVEMQ_HOME /opt/activemq
+
+
+#=========for prometheus logs, JVM Exporter========#
+ENV AGENT_VERSION=0.3.0
+ENV AGENT_SHA512=af1abc5e9412e62f767d2ece00930b08e749278030ff26a690d721c707b526ca1f99731e75a4f23f5080e7f57b4d61c3e3f8d510b7c0e998e1eb397b1e1ac08c
+ENV AGENT_BASE=jmx_prometheus_javaagent
+ENV AGENT=$AGENT_BASE-$AGENT_VERSION.jar
+ENV AGENT_CONFIG=config.yaml
+ENV AGENT_PORT=8080
+ENV AGENT_OPTS="-javaagent:/$AGENT=$AGENT_PORT:/config.yaml"
+ADD https://repo1.maven.org/maven2/io/prometheus/jmx/$AGENT_BASE/$AGENT_VERSION/$AGENT /
+USER root
+RUN chmod 0644 /$AGENT && if [ "$AGENT_SHA512" != "$(cd / && sha512sum $AGENT | awk '{print($1)}')" ]; then \
+        echo "Agent sha512 value doesn't match! exiting."  && exit 1; \
+    fi
+COPY $AGENT_CONFIG /
 
 RUN set -x && \
     mkdir -p /opt && \
@@ -48,6 +64,11 @@ HEALTHCHECK --interval=1m30s --timeout=3s --retries=10 \
 USER activemq
 
 WORKDIR $ACTIVEMQ_HOME
-EXPOSE $ACTIVEMQ_TCP $ACTIVEMQ_AMQP $ACTIVEMQ_STOMP $ACTIVEMQ_MQTT $ACTIVEMQ_WS $ACTIVEMQ_UI
+#added $AGENT_PORT in expose
+EXPOSE $ACTIVEMQ_TCP $ACTIVEMQ_AMQP $ACTIVEMQ_STOMP $ACTIVEMQ_MQTT $ACTIVEMQ_WS $ACTIVEMQ_UI $AGENT_PORT
 
+#added below lines for prometheus
+ENV ACTIVEMQ_OPTS_MEMORY="-Xms64M -Xmx1G"
+ENV ACTIVEMQ_CONF=$ACTIVEMQ_HOME/conf
+ENV ACTIVEMQ_OPTS="$AGENT_OPTS $ACTIVEMQ_OPTS_MEMORY -Djava.util.logging.config.file=logging.properties -Djava.security.auth.login.config=$ACTIVEMQ_CONF/login.config"
 CMD ["/bin/sh", "-c", "bin/activemq console"]
