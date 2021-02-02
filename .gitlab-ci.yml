@@ -31,6 +31,6 @@ docker-build-master:
   before_script:
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
   script:
-    - cd 5.16.0-alpine
-    - docker build --pull -t "$CI_REGISTRY_IMAGE:5.16.0-openj9-alpine-slim" .
-    - docker push "$CI_REGISTRY_IMAGE:5.16.0-openj9-alpine-slim"
+    - cd 5.15.5-alpine
+    - docker build --pull -t "$CI_REGISTRY_IMAGE:5.15.5-openj9-alpine-slim-CSN-4332" .
+    - docker push "$CI_REGISTRY_IMAGE:5.15.5-openj9-alpine-slim-CSN-4332"

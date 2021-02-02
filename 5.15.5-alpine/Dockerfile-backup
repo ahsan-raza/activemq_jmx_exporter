@@ -1,26 +1,11 @@
-FROM adoptopenjdk/openjdk8-openj9:alpine-slim
+FROM gitlab.expertflow.com:9242/general/openjdk:8-jre-alpine-3.12
 
 ENV ACTIVEMQ_VERSION 5.15.5
 ENV ACTIVEMQ apache-activemq-$ACTIVEMQ_VERSION
 ENV ACTIVEMQ_TCP=61616 ACTIVEMQ_AMQP=5672 ACTIVEMQ_STOMP=61613 ACTIVEMQ_MQTT=1883 ACTIVEMQ_WS=61614 ACTIVEMQ_UI=8161
 ENV SHA512_VAL=450469a36147cef8dc3ef5f98de7e173dc63e5ca82e090417c112a70132b7a7da87851e330443e9d68f085c375f4e85f2cae34317d09a59295fec05dab8f2d26
+
 ENV ACTIVEMQ_HOME /opt/activemq
-
-
-#=========for prometheus logs, JVM Exporter========#
-ENV AGENT_VERSION=0.3.0
-ENV AGENT_SHA512=af1abc5e9412e62f767d2ece00930b08e749278030ff26a690d721c707b526ca1f99731e75a4f23f5080e7f57b4d61c3e3f8d510b7c0e998e1eb397b1e1ac08c
-ENV AGENT_BASE=jmx_prometheus_javaagent
-ENV AGENT=$AGENT_BASE-$AGENT_VERSION.jar
-ENV AGENT_CONFIG=config.yaml
-ENV AGENT_PORT=8080
-ENV AGENT_OPTS="-javaagent:/$AGENT=$AGENT_PORT:/config.yaml"
-ADD https://repo1.maven.org/maven2/io/prometheus/jmx/$AGENT_BASE/$AGENT_VERSION/$AGENT /
-USER root
-RUN chmod 0644 /$AGENT && if [ "$AGENT_SHA512" != "$(cd / && sha512sum $AGENT | awk '{print($1)}')" ]; then \
-        echo "Agent sha512 value doesn't match! exiting."  && exit 1; \
-    fi
-COPY $AGENT_CONFIG /
 
 RUN set -x && \
     mkdir -p /opt && \
@@ -41,8 +26,7 @@ RUN tar xzf $ACTIVEMQ-bin.tar.gz -C  /opt && \
     chown -h activemq:activemq $ACTIVEMQ_HOME && \
     apk del build-dependencies && \
     rm -rf /var/cache/apk/*
-RUN apk update
-RUN apk upgrade
+
 RUN apk add --no-cache tzdata unzip
 RUN apk add --no-cache curl
 COPY ./activemq.xml /opt/apache-activemq-5.15.5/conf/
@@ -63,11 +47,6 @@ HEALTHCHECK --interval=1m30s --timeout=3s --retries=10 \
 USER activemq
 
 WORKDIR $ACTIVEMQ_HOME
-#added $AGENT_PORT in expose
-EXPOSE $ACTIVEMQ_TCP $ACTIVEMQ_AMQP $ACTIVEMQ_STOMP $ACTIVEMQ_MQTT $ACTIVEMQ_WS $ACTIVEMQ_UI $AGENT_PORT
+EXPOSE $ACTIVEMQ_TCP $ACTIVEMQ_AMQP $ACTIVEMQ_STOMP $ACTIVEMQ_MQTT $ACTIVEMQ_WS $ACTIVEMQ_UI
 
-#added below lines for prometheus
-ENV ACTIVEMQ_OPTS_MEMORY="-Xms64M -Xmx1G"
-ENV ACTIVEMQ_CONF=$ACTIVEMQ_HOME/conf
-ENV ACTIVEMQ_OPTS="$AGENT_OPTS $ACTIVEMQ_OPTS_MEMORY -Djava.util.logging.config.file=logging.properties -Djava.security.auth.login.config=$ACTIVEMQ_CONF/login.config"
 CMD ["/bin/sh", "-c", "bin/activemq console"]
